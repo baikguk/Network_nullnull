@@ -1,0 +1,119 @@
+Layer와 Layerd구조
+  이러한 형태의 구조는 상위레이어일 경우 하위레이어에 의존함
+	
+네트워크와 네트워킹 개념
+  NetWork -> 관계
+  NetWorking -> 상호작용
+  OSI 7 Layer -> 네트워크에서 개념을 담당함으로 바로 공부하기에는 무리
+	TCP/IP 공부 후 OSI 7 Layer을 공부해보자  
+  개념과 구현(ex) 연예인 - 박은빈) 상속과 비슷한 느낌
+
+User mode와 Kernel mode
+
+		      Application(Chrome)	App L7
+		 			Presentation
+ 	User mode    File			Session L5
+	----------------------------------------------------------
+	Kernel mode			Transport(TCP) L4
+S/W Driver(하드웨어를 제어하기 위해 필요)	Network(IP) L3
+----------------------------------------------------------------------
+H/W NIC( network interface card) =랜카드	Data Link(커널의 Driver 						Hw 일부분)L2
+					Physical (Nic) L1
+
+
+  App에서 kernel mode에 접근하기 위해서는 인터페이스가 필요
+  Socekt(File) -> TCP/IP를 추상화시키 인터페이스
+
+
+OSI 7 Layer와 식별자
+
+			App (HTTP)
+			Presentation
+ 	User mode 	Session (SSL==TLS) L5
+	----------------------------------------------------------
+	Kernel mode	Transport(TCP, UDP) L4 식별자 port 번호
+S/W 			Network(Internet) L3 -> 식별자 : IP 주소
+----------------------------------------------------------------------
+H/W			Data Link(Ethernet)(유선)->식별자 : MAC주소
+			Physical 
+
+	HTTP+Session -> HTTPS
+
+	MAC주소(물리적 주소) : 랜(NIC)의 식별자
+	IP주소: (host) : 인터넷을 사용하는 컴퓨터의 식별자(v4,v6)
+	Port 번호 : 분야에 따라 다른 식별자
+		  L2 관점 : 인터페이스 (LAN 케이블 단자)
+		  L4 관점 : Service
+		  L5~7 관점 : Process
+
+	cmd에서 ipconfig /all 명령을 통해 각각의 실제 주소확인 가능
+
+무선 LAN 어댑터 Wi-Fi:
+
+   연결별 DNS 접미사. . . . :
+   설명. . . . . . . . . . . . : Intel(R) Dual Band Wireless-AC 8260
+   물리적 주소 . . . . . . . . : 00-C2-C6-B6-44-73
+   DHCP 사용 . . . . . . . . . : 예
+   자동 구성 사용. . . . . . . : 예
+   링크-로컬 IPv6 주소 . . . . : fe80::5514:1a48:fd7:58d2%7(기본 설정)
+   IPv4 주소 . . . . . . . . . : 192.168.0.13(기본 설정)
+   서브넷 마스크 . . . . . . . : 255.255.255.0
+   임대 시작 날짜. . . . . . . : 2023년 6월 22일 목요일 오후 4:15:17
+   임대 만료 날짜. . . . . . . : 2023년 6월 22일 목요일 오후 8:15:15
+   기본 게이트웨이 . . . . . . : 192.168.0.1
+   DHCP 서버 . . . . . . . . . : 192.168.0.1
+   DHCPv6 IAID . . . . . . . . : 83935942
+   DHCPv6 클라이언트 DUID. . . : 00-01-00-01-25-05-3D-92-98-83-89-22-20-73
+   DNS 서버. . . . . . . . . . : 111.118.0.1
+                                 111.118.0.11
+   Tcpip를 통한 NetBIOS. . . . : 사용
+
+
+DOD(department of defence) 분류
+
+ 	User mode 	Application
+	----------------------------------------------------------
+	Kernel mode	host to host
+S/W 			Internet
+----------------------------------------------------------------------
+H/W			Network Access
+
+
+Host는 이렇게 외우자
+  host : computer + network 네트워크가 연결된 컴퓨터
+  host를 지칭하는 크게 두가지
+
+	switch : 네트워크 자체를 이루는 host -> Infra Structure
+		Ip주소가 붙는 경우
+		Router(네트워크장비), IPS(보안 스위치),
+		Tab,Aggregation(관리목적)
+
+	end-point(단말기) : 네트워크 이용주체
+	    -> Client, Server, Peer(P2P 통신->서비스제공자이자 이용자)
+
+Switch가 하는 일
+  네트워크 -> 고속도로망과 비슷
+	출발지 - 교차로(Switch)(인터페이스 선택=switching) - 목적지
+		    ㄴ 이정표를 통해 경로 선택 근거를 찾음
+   Packet(자동차, L3 단위)
+   Switch : 선택하는 근거-> Ip주소 -> L3 switching(Router) 
+   Router : 라우터안에 이정표(Router table)가 존재함
+	
+  ex) Mac 주소에서는 L2 switching, port번호에서는 L4 switching
+       HTTP에서는 L7 switching
+  
+  스위칭에서 고민해야 할 주제는 비용(Matric 값)
+			       ㄴ cmd에서 route print로 확인가능
+   비용이 낮은쪽으로 이동함
+
+NIC, L2 Frame, LAN 카드 그리고 Mac 주소
+  NIC은 흔히 Lan카드, 유/무선 NIC이 있지만 굳이 구별하지 않음
+  NIC은 H/W이며 Mac(Media access control)주소를 갖는다
+  cf) USB(universial serial bus) 
+  네트워크 규모 : WAN > MAN(도시망) > LAN(home규모의 망)
+
+  Frame(1514byte 정도) : L2 레이어에서의 유통단위
+  정보 Frame(10KB)
+
+  유선의 속도 : 1Gbps -> bit cf) 1GBps -> byte
+  광케이블 : 10Gbps
