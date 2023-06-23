@@ -1,6 +1,9 @@
 Layer와 Layerd구조
   이러한 형태의 구조는 상위레이어일 경우 하위레이어에 의존함
 	
+
+
+
 네트워크와 네트워킹 개념
   NetWork -> 관계
   NetWorking -> 상호작용
@@ -8,8 +11,10 @@ Layer와 Layerd구조
 	TCP/IP 공부 후 OSI 7 Layer을 공부해보자  
   개념과 구현(ex) 연예인 - 박은빈) 상속과 비슷한 느낌
 
-User mode와 Kernel mode
 
+
+
+User mode와 Kernel mode
 		      Application(Chrome)	App L7
 		 			Presentation
  	User mode    File			Session L5
@@ -25,8 +30,9 @@ H/W NIC( network interface card) =랜카드	Data Link(커널의 Driver 						Hw 
   Socekt(File) -> TCP/IP를 추상화시키 인터페이스
 
 
-OSI 7 Layer와 식별자
 
+
+OSI 7 Layer와 식별자
 			App (HTTP)
 			Presentation
  	User mode 	Session (SSL==TLS) L5
@@ -39,7 +45,7 @@ H/W			Data Link(Ethernet)(유선)->식별자 : MAC주소
 
 	HTTP+Session -> HTTPS
 
-	MAC주소(물리적 주소) : 랜(NIC)의 식별자
+	MAC주소(물리적 주소) : 랜(NIC)의 식별자, 48비트 주소체계
 	IP주소: (host) : 인터넷을 사용하는 컴퓨터의 식별자(v4,v6)
 	Port 번호 : 분야에 따라 다른 식별자
 		  L2 관점 : 인터페이스 (LAN 케이블 단자)
@@ -47,7 +53,6 @@ H/W			Data Link(Ethernet)(유선)->식별자 : MAC주소
 		  L5~7 관점 : Process
 
 	cmd에서 ipconfig /all 명령을 통해 각각의 실제 주소확인 가능
-
 무선 LAN 어댑터 Wi-Fi:
 
    연결별 DNS 접미사. . . . :
@@ -69,14 +74,16 @@ H/W			Data Link(Ethernet)(유선)->식별자 : MAC주소
    Tcpip를 통한 NetBIOS. . . . : 사용
 
 
-DOD(department of defence) 분류
 
+DOD(department of defence) 분류
  	User mode 	Application
 	----------------------------------------------------------
 	Kernel mode	host to host
 S/W 			Internet
 ----------------------------------------------------------------------
 H/W			Network Access
+
+
 
 
 Host는 이렇게 외우자
@@ -90,6 +97,8 @@ Host는 이렇게 외우자
 
 	end-point(단말기) : 네트워크 이용주체
 	    -> Client, Server, Peer(P2P 통신->서비스제공자이자 이용자)
+
+
 
 Switch가 하는 일
   네트워크 -> 고속도로망과 비슷
@@ -106,6 +115,10 @@ Switch가 하는 일
 			       ㄴ cmd에서 route print로 확인가능
    비용이 낮은쪽으로 이동함
 
+
+
+
+
 NIC, L2 Frame, LAN 카드 그리고 Mac 주소
   NIC은 흔히 Lan카드, 유/무선 NIC이 있지만 굳이 구별하지 않음
   NIC은 H/W이며 Mac(Media access control)주소를 갖는다
@@ -114,6 +127,72 @@ NIC, L2 Frame, LAN 카드 그리고 Mac 주소
 
   Frame(1514byte 정도) : L2 레이어에서의 유통단위
   정보 Frame(10KB)
+  Frame 구성 :  |Header(도착,출발 주소)|정보|
 
-  유선의 속도 : 1Gbps -> bit cf) 1GBps -> byte
+  유선의 속도 : 1Gbps -> bit / 1GBps -> byte(단위조심)
   광케이블 : 10Gbps
+
+
+
+
+L2 Access switch( 공유기에 연결되는 단자 부분 -> 인터페이스)
+  end-point와 직접 연결되는 스위치(Mac 주소를 근거로 스위칭)
+  Link-up(케이블이 정상 연결), Link-down (케이블 비정상연결)
+  L2 switch에서 상위(L3) 라우터로 열결되는 경우 up-link라고 함
+
+
+
+L2 distribution switch
+  L2 Access 스위치를 위한 스위치(VLAN 기능을 제공)
+pc1 --|----Access switch---- Distribution Switch ----L3 Switch---Internet
+pc2 --|                                     |
+pc3 --|                              Access Switch
+		           |--------|-------|
+		         pc4    pc5    pc6
+	-> 상위 switch일수록 가격이 높아짐
+
+
+
+
+Lan과 Wan의 경계 그리고 Broadcast(방송주소) != Unicast(효율이 좋음)
+			ㄴ 효율이 안좋음
+			ㄴ 노이즈가 될 수 있어서 최소화 해야함
+  Mac 주소(FF-FF-FF-FF-FF-FF)가 모두 1이면 Broadcast라 함(항상 참)
+
+     LAN(규모)
+pc1 --|----Access switch---- Distribution Switch ----L3 Switch---Internet
+pc2 --|                                     |
+pc3 --|                              Access Switch
+		            |--------|-------|
+		           pc4    pc5    pc6
+
+ 임의의 Pc1이 broadcast를 하게되면 2~6은 통신불가
+ 뿐만 아니라 여러방향으로 Frame을 쏴 눈덩이처럼 커져 네트워크가 느려짐
+  -> BroadCast를 최소화 해야함  
+  -> Distibution이 broadcast를 받지 않게(broad범위를 줄임
+      하여 pc456은 영향을 안받게 할수 도 있음 cf)456이 필요한 broadcast      인 경우도 있어 복잡함
+  -> IP 주소상에서는 Broadcast 범위를 잡아줌
+
+
+
+
+네트워크의 규모
+
+			App (HTTP)
+			Presentation
+ 	User mode 	Session (SSL==TLS) 
+	----------------------------------------------------------
+	Kernel mode	Transport(TCP, UDP)
+S/W(Logical ≈  Virtual)	Network(Internet)
+----------------------------------------------------------------------
+H/W(Physical)		Data Link(Ethernet)
+			Physical 
+
+하드웨어 단계의 네트워크(유선)는 물리적, 소포트웨어 단계에서는 실체가 x
+IT분야에서 S/W(Logical) 영역을 Virtual이라기도 함
+CPU를 주로 Machine이라 하는데
+H/W기능인 CPU를 S/W로 구현하게 되면 이릉 Virtual Machine이라 함
+
+아래 규모 정도는 완벽한게 아니라 요령임
+LAN의 규모 : 얼추 H/W Layer 범위 정도의 네트워크(완벽한 정의는 아님)
+WAN의 규모 : L3 Layer 범위
