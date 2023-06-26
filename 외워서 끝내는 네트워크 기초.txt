@@ -196,3 +196,93 @@ H/W기능인 CPU를 S/W로 구현하게 되면 이릉 Virtual Machine이라 함
 아래 규모 정도는 완벽한게 아니라 요령임
 LAN의 규모 : 얼추 H/W Layer 범위 정도의 네트워크(완벽한 정의는 아님)
 WAN의 규모 : L3 Layer 범위
+
+
+IPv4주소의 구조 :
+			App (HTTP)
+			Presentation
+ 	User mode 	Session (SSL==TLS) 
+	----------------------------------------------------------
+	Kernel mode	Transport(TCP, UDP)
+S/W(Logical ≈  Virtual)	Network(IP) IPv4->32bit = 8bit*4
+-------------------------------------------------- --------------------
+H/W(Physical)		Data Link(Ethernet)
+			Physical 
+
+  192.168.0.09 -> 대체로 공유기 주소( . 사이당 0~255(8bit))
+|32bit(networkID).8bit(HostId)|
+  IP가 주소를 찾는 원리가 택배와 비슷 
+  NetworkId에 해당하는 부분까지 네트워크를 버스에 태워 찾고
+  HostId로 세부 주소를 찾아감
+
+
+L3 Packet(단위 데이터)-> WireShock로 직접 볼 수 있음
+  Packet 자체로 L3 IP Packet을 의미함
+  Header(주소 : src->des)과 Payload(내용)로 구성됨 (L2 Frame 도 비슷)
+  최대 크기는 MTU(Maximum Transmission unit)(대체로 1500byte)
+
+
+En/Decapsulation(캡슐화,단위화)(보안면에서 직접으로 정보 보이지않음)
+  마치 러시아 목각 인형인 것처럼
+
+L2 Frame
+ -----------------------------------------------------------------|
+ |   L2	|		L2 Payload #1(L3 IP Packet)  |
+ |	|   --------------------------------------------------- |
+ | HEADER|  |    L3	  |        L3 Payload #2 (TCP Segment) |
+ |	|   |HEADER|  ----------------------------------------|  
+ |	|   |          |  |  L4 Header | L4 Payload #3	 |
+ |	|   -----------------------------------------------------|
+ ------------------------------------------------------------------|
+   Payload #3안에 있는 정보부터는 Stream이라함
+
+
+패킷의 생성,전달,소멸
+  택배와 비슷
+철수(process)
+    |                                                              
+ 우편(packet) -> 기사(Gateway) -------------------집(host) -> 영희(process)
+					 ㄴ영희 이름(port)
+
+			-------------------------------------
+			| 	 Process 
+			|
+			|
+			-------------------------------------		
+ 	User mode 	|   File,Socket(TCP/IP를 추상화한 인터페이스)
+	----------------------------------------------------------
+	Kernel mode	 TCP
+			  IP
+
+S/W(Logical ≈  Virtual)	 Driver
+-------------------------------------------------- --------------------
+H/W(Physical)		
+
+  프로세스가 Data를 보낼때 File(socket)에 Send(write)함
+  -> TCP단계에서 TCP header을 붙힘 (segment화를 함)
+  -> IP단계에서 IP header을 붇힘
+  -> Driver단계에서 Ethernet 헤더가 붙어 Frame이 됨
+  -> Frame을 송신함
+  -> L2 Access Switch 를 만나고 라우터 Gateway를 통해 인터넷으로 나감
+
+
+계층별 데이터 단위
+			-------------------------------------
+			| 	 Chrome
+			|
+			|
+			-------------------------------------		
+ 	User mode 	|   Socket -> Stream
+	----------------------------------------------------------
+	Kernel mode	 TCP     -> Segment MSS(1460 byte)
+			  IP       -> Packet MTU(최대크기 1500byte)
+
+S/W(Logical ≈  Virtual)	 Driver  			    ---
+------------------------------------------------- -------------------- |
+H/W(Physical)	                                           	     | L1~2: Frame
+						     |
+
+  Stream은 시작이 있지만 끝을 정의할 수없음( 끝은 Process가 결정함)
+                                     ㄴ 크기를 알 수 없음
+   Stream이 MSS, MTU보다 커지게 되면 Stream을 분할함(Segmentation)
+   Datagram의 경우는 UDP에서 사용되며 Packet과 비슷  
