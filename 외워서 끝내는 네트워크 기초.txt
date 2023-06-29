@@ -287,4 +287,7 @@ H/W(Physical)	                                           	     | L1~2: Frame
    Stream이 MSS, MTU보다 커지게 되면 Stream을 분할함(Segmentation)
    Datagram의 경우는 UDP에서 사용되며 Packet과 비슷  
 
+TCP/IP 송수신과정
 아 ㅅㅂ 메모한거 날라갔네
+
+IP 헤더 형식
