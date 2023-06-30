@@ -290,4 +290,38 @@ H/W(Physical)	                                           	     | L1~2: Frame
 TCP/IP 송수신과정
 아 ㅅㅂ 메모한거 날라갔네
 
-IP 헤더 형식
+IPV4 헤더 형식
+
+   20byte|        1480byte(경우에 따라 MTU는 0~65535byte까지 증가)
+ ----------------------------------------
+|	|
+|HEADER	|	PAYLOAD
+|	|
+------------------------------------------
+
+0	4	8		16		32bit        
+  Version |    IHL	|	TOS	 |       Total Length               
+          Identification		 | Flags | Fragment offset       
+  TTL		|   Protocol	 |   Header checksum	  
+			Source address(출발지)		| 
+			Destination address(목적지)		| 
+			Option				|
+			Data				|
+
+1행
+Version : 4
+IHL(Internet Header Length) : 헤더 행의 갯수(주로 5)
+	열은 32 bit 임으로 
+	->(5*4byte) = 20byte
+TOS : 서비스 유형 및 혼잡알림을 나타내는 8bit 필드
+Total Length(16bit) -> 0~65535경우의 수
+
+2행 : 단편화와 관련됨 
+  단편화 : 네트워크마다 MTU값이 다르기 때문에 크기에 맞춰 자르는것
+
+3행
+TTL(8bit) : 패킷 유통과정에서 홉을 만나면 TTL이 값이 줄며 0이되면 버림
+Time to live
+Protocol : Packet의 payload 내부의 헤더를 해석하는 방법(TCP,UDP)
+	고유번호가 존재함
+Header checksum : 패킷의 송수신과정에서 손상여부를 검사하는 값
