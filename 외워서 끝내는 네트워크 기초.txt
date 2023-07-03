@@ -3,14 +3,12 @@ Layer와 Layerd구조
 	
 
 
-
 네트워크와 네트워킹 개념
   NetWork -> 관계
   NetWorking -> 상호작용
   OSI 7 Layer -> 네트워크에서 개념을 담당함으로 바로 공부하기에는 무리
 	TCP/IP 공부 후 OSI 7 Layer을 공부해보자  
   개념과 구현(ex) 연예인 - 박은빈) 상속과 비슷한 느낌
-
 
 
 
@@ -22,12 +20,13 @@ User mode와 Kernel mode
 	Kernel mode			Transport(TCP) L4
 S/W Driver(하드웨어를 제어하기 위해 필요)	Network(IP) L3
 ----------------------------------------------------------------------
-H/W NIC( network interface card) =랜카드	Data Link(커널의 Driver 						Hw 일부분)L2
+H/W NIC( network interface card) =랜카드	Data Link(커널의 Driver Hw 일부분)L2
 					Physical (Nic) L1
 
 
   App에서 kernel mode에 접근하기 위해서는 인터페이스가 필요
   Socekt(File) -> TCP/IP를 추상화시키 인터페이스
+
 
 
 
@@ -75,6 +74,8 @@ H/W			Data Link(Ethernet)(유선)->식별자 : MAC주소
 
 
 
+
+
 DOD(department of defence) 분류
  	User mode 	Application
 	----------------------------------------------------------
@@ -82,6 +83,7 @@ DOD(department of defence) 분류
 S/W 			Internet
 ----------------------------------------------------------------------
 H/W			Network Access
+
 
 
 
@@ -170,8 +172,8 @@ pc3 --|                              Access Switch
  뿐만 아니라 여러방향으로 Frame을 쏴 눈덩이처럼 커져 네트워크가 느려짐
   -> BroadCast를 최소화 해야함  
   -> Distibution이 broadcast를 받지 않게(broad범위를 줄임
-      하여 pc456은 영향을 안받게 할수 도 있음 cf)456이 필요한 broadcast      인 경우도 있어 복잡함
-  -> IP 주소상에서는 Broadcast 범위를 잡아줌
+      하여 pc456은 영향을 안받게 할수 도 있음 cf)456이 필요한 broadcast인 경우도 있어 복잡함
+  -> IP 주소상에서는 Broadcast를 수신하는 범위를 잡아줌
 
 
 
@@ -227,11 +229,11 @@ En/Decapsulation(캡슐화,단위화)(보안면에서 직접으로 정보 보이
 
 L2 Frame
  -----------------------------------------------------------------|
- |   L2	|		L2 Payload #1(L3 IP Packet)  |
+ |   L2	|		L2 Payload #1(L3 IP Packet)  | L2 -> Frame
  |	|   --------------------------------------------------- |
- | HEADER|  |    L3	  |        L3 Payload #2 (TCP Segment) |
+ | HEADER|  |    L3	  |        L3 Payload #2 (TCP Segment) |  L3 -> Packet
  |	|   |HEADER|  ----------------------------------------|  
- |	|   |          |  |  L4 Header | L4 Payload #3	 |
+ |	|   |          |  |  L4 Header | L4 Payload #3	 | L4 -> Segment
  |	|   -----------------------------------------------------|
  ------------------------------------------------------------------|
    Payload #3안에 있는 정보부터는 Stream이라함
@@ -277,18 +279,87 @@ H/W(Physical)
 	Kernel mode	 TCP     -> Segment MSS(1460 byte)
 			  IP       -> Packet MTU(최대크기 1500byte)
 
-S/W(Logical ≈  Virtual)	 Driver  			    ---
-------------------------------------------------- -------------------- |
-H/W(Physical)	                                           	     | L1~2: Frame
-						     |
+S/W(Logical ≈  Virtual)	 Driver  			  ---
+------------------------------------------------- -----------------  |
+H/W(Physical)	                                           	   | L1~2: Frame						     	   |
+						  ----
 
   Stream은 시작이 있지만 끝을 정의할 수없음( 끝은 Process가 결정함)
                                      ㄴ 크기를 알 수 없음
    Stream이 MSS, MTU보다 커지게 되면 Stream을 분할함(Segmentation)
    Datagram의 경우는 UDP에서 사용되며 Packet과 비슷  
 
-TCP/IP 송수신과정
-아 ㅅㅂ 메모한거 날라갔네
+TCP/IP 송수신 구조 
+
+  1.4MB -> 1.4KB 단위 주의 -> 1024배 차이남
+  TCP는 연결이 기본적으로 되야함 -> 가정하고 아래 상황 진행
+
+
+송신(Encapsulation)
+  
+			-------------------------------------
+			| 	
+			|	SERVER ( 프로세스별 버퍼)
+			|
+			-------------------------------------		
+ 	User mode 	|  File( Socket I/O에 붙은 Buffer)
+	----------------------------------------------------------
+	Kernel mode	 TCP     
+			  IP       
+
+S/W(Logical ≈  Virtual)	 Driver  			    
+------------------------------------------------- -------------------- 
+H/W(Physical)	             
+
+  HDD,SDD에서 File(Block)을 읽어 프로세스 버퍼 크기에 맞게 분해 복사 후 프로세스 버퍼에 저장함                      	      		
+  Process 버퍼값을 복사하여 Socket 버퍼에 저장( Send/Receive)함
+  TCP 스텍에서 MSS크기에 맞게 분해(Segementation)하고 번호를 부여함	
+  IP에서 segement를 캡슐화하여 Packet을 만듬	
+  L2 단계에서 Frame으로 유통됨
+
+  Segement 번호 순으로 송신하는 것이 이상적
+        -> 수신자가 번호 순대로 받았는지 확인하기 위해 Ack를 wait함  
+        -> 수신자의 소켓 여유공간도 고려해줌(스윗하누)
+
+
+수신(Decapsulation)
+			-------------------------------------
+			| 	
+			|Chrome
+			|
+			-------------------------------------		
+ 	User mode 	|  File( Socket I/O에 붙은 Buffer)
+	----------------------------------------------------------
+	Kernel mode	 TCP     
+			  IP       
+
+S/W(Logical ≈  Virtual)	 Driver  			    
+------------------------------------------------- -------------------- 
+H/W(Physical)
+
+  Frame->Packet->Segement로 분해하며 헤더는 버림
+  Socket 버퍼에 번호대로 저장함
+  Chrome 버퍼에서 소켓버퍼의 값을 Read/Recieve함
+  하지만 버퍼간 채움과 비움의 속도 차이가 잇음
+     -> 톱니바퀴 처럼 티키타카 잘해야함
+  데이터를 손실하지 않기 위해 Socket버퍼의 여유공간이 있어야 함
+ 
+  수신과정에서 TCP가 Packet을 잘 받았으면 ACK이라는 피드백을 해줌
+  ACK는 Segment번호와 소켓의 여유공간 정보도 포함됨
+
+
+Network 장애
+  1. Loss (유실) -> 네트워크 상 오류
+  2. Re-transmission + ACK-Duplicate ->네트워크 or end-point 오류
+	 송신자 입장에서 Ack가 안와서 다시 데이터를 보내줌
+	   ->근데 간발의 차로 ACk을 받아버림
+ 	 수신자 입장에서 ACK를 보냈는데 같은 Segement가 중복하여 옴
+  3. Out of Order -> 네트워크상 오류	
+	segement의 순서에 맞지 않게 수신함
+  4. Zero Window  -> End-point(App)의 문제
+	수신측의 소켓버퍼의 여유 공간을 Window Size라 함
+             즉, 수신측 소켓버퍼가 꽉찼다는 뜻 
+	   -> 프로세스가 소켓버퍼를 못비워줌으로 App 단계 문제
 
 IPV4 헤더 형식
 
@@ -411,7 +482,58 @@ Internet
    단편화는 발생하지 않는게 좋음
 	-> 송신 과정에서 통과하는 라우터의 MTU중 가장 작은 값에 
                  맞추서 보내 주로 해결함 ->다른 기술도 많음
+   단편화는 주로 VPN(IpSec->터널링기술)이 적용되었을 때 발생함
 
-    단편화는 주로 VPN(IpSec->터널링기술)이 적용되었을 때 발생함
+
+L3 단계에서 인터넷 사용 전에 해야 할 설정
+   ISP(internet service provider) 인터넷 제공회사
+  1.Host의 식별자가 필요 -> IP주소
+  2. Subnet Mask
+  3. GateWay Ip주소
+  4. DNS 주소
+  Ip주소를 자동을 할당 받는 -> DHCP
 
 
+DHCP(Dynamic(=runtime) Host Configuration Protocol)
+  인터넷에 필요한 4가지 설정을 자동으로 해줌
+     -> DHCP서버가 알려줌
+  특정 Pc가 켜지면 Broadcast packet을 발송함-> DHCP서버를 찾기 위해
+  DHCP 서버에는 사용가능한 IP주소를 pool에 저장해놓음
+  DHCP 서버는 Broadcast 도메인 안에 있어야됨
+
+
+ARP(Address Resolution Protocol)
+        ㄴIPv4, MAC -> Host의 기본적인 주소
+  ARP는 Ip주소로 MAC주소를 알아내려고 할때
+  보통 PC를 부팅하면 Gateway MAC주소를 찾아내기 위해
+  ARP Request가 발생하고 Reply를 받음(Gateway MAC주소없으면 통신못함)
+  
+   ex) PC네이버에 접속하려면 Gateway MAC주소를 반드시 알아야함
+   cf) Frame의 목적지 주소는 Gateway MAC주소이다(네이버주소아님)
+   
+    -> ARP 통신후 GATEway MAC주소를 자주 사용하기 때문에 Cashe에 저장해놓고 이후에 또 사용됨 -> cmd arp -a 를 통해 해당 캐쉬 확인가능
+
+
+Ping과 RTT
+  Ping 유틸리티(그냥 프로그램 이름)는  ICMP 프로토콜을 사용하여 특정 Host에 대한 RTT(Round Trip Time)을 측정할 목적으로 사용된다.
+  DoS(Denial of Service) 공격용으로 악용되기도 함
+  
+   RTT는 네트워크 속도에 영향(거리도 어느정도 영향)
+   ICMP(internet control message protocol) : 오류 보고 및 네트워크 진단
+    				          L3단계에 속함
+   cmd -> ping 에서 확인 가능
+
+
+TCP와 UDP
+  식별자 : Port 번호
+  TCP에만 연결(Connection, Session) 개념이 있다.
+  TCP를 Virtual Circuit이라고도 함
+  연결을 결과적으로 순서번호로 구현된다. 
+	-> Segement의 번호는 크기에따라 부여함
+		1번(400byte) -> 다음번호는 401
+  연결은  '상태(전이)' 개념을 동반한다  
+     ex) 전화(연결) 전 -> 통화 -> 전화 후
+  TCP는 배려남,  		UDP는 나쁜남자에 비유
+   ㄴZeroWindow고려해줌     ㄴ 그냥 보냄
+  
+ 기본단위 : TCP(Segement), UDP(Datagram)
