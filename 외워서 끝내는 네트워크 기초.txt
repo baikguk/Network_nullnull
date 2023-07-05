@@ -200,6 +200,8 @@ LAN의 규모 : 얼추 H/W Layer 범위 정도의 네트워크(완벽한 정의�
 WAN의 규모 : L3 Layer 범위
 
 
+
+
 IPv4주소의 구조 :
 			App (HTTP)
 			Presentation
@@ -216,6 +218,7 @@ H/W(Physical)		Data Link(Ethernet)
   IP가 주소를 찾는 원리가 택배와 비슷 
   NetworkId에 해당하는 부분까지 네트워크를 버스에 태워 찾고
   HostId로 세부 주소를 찾아감
+
 
 
 L3 Packet(단위 데이터)-> WireShock로 직접 볼 수 있음
@@ -237,6 +240,7 @@ L2 Frame
  |	|   -----------------------------------------------------|
  ------------------------------------------------------------------|
    Payload #3안에 있는 정보부터는 Stream이라함
+
 
 
 패킷의 생성,전달,소멸
@@ -268,6 +272,8 @@ H/W(Physical)
   -> L2 Access Switch 를 만나고 라우터 Gateway를 통해 인터넷으로 나감
 
 
+
+
 계층별 데이터 단위
 			-------------------------------------
 			| 	 Chrome
@@ -288,6 +294,9 @@ H/W(Physical)	                                           	   | L1~2: Frame						
                                      ㄴ 크기를 알 수 없음
    Stream이 MSS, MTU보다 커지게 되면 Stream을 분할함(Segmentation)
    Datagram의 경우는 UDP에서 사용되며 Packet과 비슷  
+
+
+
 
 TCP/IP 송수신 구조 
 
@@ -322,6 +331,7 @@ H/W(Physical)
         -> 수신자의 소켓 여유공간도 고려해줌(스윗하누)
 
 
+
 수신(Decapsulation)
 			-------------------------------------
 			| 	
@@ -348,6 +358,7 @@ H/W(Physical)
   ACK는 Segment번호와 소켓의 여유공간 정보도 포함됨
 
 
+
 Network 장애
   1. Loss (유실) -> 네트워크 상 오류
   2. Re-transmission + ACK-Duplicate ->네트워크 or end-point 오류
@@ -360,6 +371,8 @@ Network 장애
 	수신측의 소켓버퍼의 여유 공간을 Window Size라 함
              즉, 수신측 소켓버퍼가 꽉찼다는 뜻 
 	   -> 프로세스가 소켓버퍼를 못비워줌으로 App 단계 문제
+
+
 
 IPV4 헤더 형식
 
@@ -398,6 +411,7 @@ Protocol : Packet의 payload 내부의 헤더를 해석하는 방법(TCP,UDP)
 Header checksum : 패킷의 송수신과정에서 손상여부를 검사하는 값
 
 
+
 Subnet Mask 
   네트워크 Id와 HostId를 나눠주는 기준
   192	    .168	        .0	          .10
@@ -422,6 +436,7 @@ Sub Netting // 255 255 255 192
 
 
 
+
 CIDR (Classless Inter-Domain Routing)
 	192.168.0.10/24
   -> /24를 추가함 (24bit 까지(192.168.0) 네트워크 id라고 표현함)
@@ -433,6 +448,8 @@ Broadcast(반대말 : unicast) IP주소 (cf : Mac주소 : 48bit FF-FF-FF-FF
     -> HostId 가 255면 192.168.0 네트워크의 방송 주소가 됨
     -> 192.168.0 에 해당하는 네트워크에 모두 송신 됨
      cf) HostId의 경우 0(서브넷 마스크 결과값),1(주로 게이트웨이가 해당 주 소를 받음),255(Broadcast용 주소)는 못쓰고 253가지 경우의 수만 쓸 수 있음
+
+
 
 Host 자신을 가르키는 Ip주소
   동일 컴퓨터의 Process 들끼리 통신이 필요할 때 사용됨
@@ -458,6 +475,8 @@ H/W(Physical)
   cf)  192.168.0.10 변경이 가능한 주소임으로 불안정
 
 
+
+
 Internet
   인터넷은 라우터의 집합체라고 할 수 있는 논리 네트워크이다
     Router ⊂ L3 Switch or L3 Switch ⊂ Router Router == L3 Switch
@@ -471,6 +490,9 @@ Internet
   |-----------------------------------|
 	ㄴHop : 한 라우터에서 다른 라우터로 이동하는 단위
 
+
+
+
 단편화(Fragmentation) 
   단편화는 MTU크기 다름으로 인해 발생함
     -> 1400바이트가 용량한계인 경우 1500은 못받음으로 잘라서 보내야함
@@ -483,6 +505,8 @@ Internet
 	-> 송신 과정에서 통과하는 라우터의 MTU중 가장 작은 값에 
                  맞추서 보내 주로 해결함 ->다른 기술도 많음
    단편화는 주로 VPN(IpSec->터널링기술)이 적용되었을 때 발생함
+
+
 
 
 L3 단계에서 인터넷 사용 전에 해야 할 설정
@@ -514,6 +538,7 @@ ARP(Address Resolution Protocol)
     -> ARP 통신후 GATEway MAC주소를 자주 사용하기 때문에 Cashe에 저장해놓고 이후에 또 사용됨 -> cmd arp -a 를 통해 해당 캐쉬 확인가능
 
 
+
 Ping과 RTT
   Ping 유틸리티(그냥 프로그램 이름)는  ICMP 프로토콜을 사용하여 특정 Host에 대한 RTT(Round Trip Time)을 측정할 목적으로 사용된다.
   DoS(Denial of Service) 공격용으로 악용되기도 함
@@ -522,6 +547,7 @@ Ping과 RTT
    ICMP(internet control message protocol) : 오류 보고 및 네트워크 진단
     				          L3단계에 속함
    cmd -> ping 에서 확인 가능
+
 
 
 TCP와 UDP
@@ -537,3 +563,26 @@ TCP와 UDP
    ㄴZeroWindow고려해줌     ㄴ 그냥 보냄
   
  기본단위 : TCP(Segement), UDP(Datagram)
+
+
+
+TCP 연결 과정 (3-way handshaking)
+  TCP 연결은 Seq 번호를 교환, 정책 교환하며 중요한 MSS값도 포함됨
+	-> 관리적 정보(Protocol)을 교환함
+   Client,서버 중 작은 MSS에 맞춰 Segement를 보냄 
+  Segement 단위로 통신되지만 기존 Segement와 달리 IP/TCP헤더만 있음
+  1. Client가 서버에 SYN(1000->Sequence number : 연결 요청
+  2. 대기중이던 서버가 연결을 확인하면 자기의 Sequence number과 받은 Seq+1을 ACK로 넘겨줌
+  3. Client가 서버 Seq +1을 하여 ACK해줌  
+
+ cf)Client가 생각하는 연결완료시점과 Server가 연결된시점이다르다고느낌
+
+
+TCP 연결 종료과정(4-way handshaking)
+  특별한 상황이 아니면 연결,종료는 Client가 요청하게 해야 함
+  서버가 Fin+ACk를 받으면 받았다는 ACK를 보내고 종료휴 FIN+ACK를 또 보내줌
+  Client가 FIN+ACK를 받으면 Client는 Time_Wait 상태가 되고 마지막 ACK를 보내줌 
+ Time wait는 연결 종료 주체에서 발생하며 서버에 Time_wait 상태가 있다면 특수한 상황임을 유추할 수 있음
+  Time wait상태로 시간을 보내고 CLOSED 상태가되면서 소켓을 반환함
+    ->서버가 종료 요청하면 Client는 Timewait 상태가 될수 없어 소켓의 낭비가 발생할 수 있음
+    -> 특수한 상황에서 서버가 종료 요청을 하기 위해서는 Application Protocol 단계에서 특수상황에 대한 구현이 필요함(서버가 Client에게 종료 요청을 유도하는 방식)
