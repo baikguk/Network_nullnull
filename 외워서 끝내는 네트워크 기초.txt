@@ -642,4 +642,52 @@ TCP 연결과 게임 버그
 	무결 : 데이터의 조작여부
 	가용 :  정보의 사용가능 여부
 
-DNS
+
+DNS(Domain name service)
+  L1 ~ L4 부터는 APP에서 서비스를 제공하기 위한 Infra인데
+  DNS의 경우 App단계에서 Infra역할을 해줌
+    ex) www.naver.com -> 네이버의 TCP/IP 주소를 이름으로 알려줌
+        |host |
+        |www|.naver.com
+        | domain name |
+      
+
+  -분산 구조형 데이터베이스
+     데이터베이스 시스템의 분산 구성
+     데이터의 영역별 구분 및 분산관리
+
+  -트리 구조의 Domain 네임 체계   
+    Domain : 영역 
+    도메인 네임의 자율적 생성
+    생성된 도메인 네임은 언제나 유일하도록 네임 체계 구성
+
+ex) 사용자가 네이버 접속하려함 -> 해당 pc의 운영체제가 Ip설정에 포함되어있는 DNS주소( ex) KT DNS 주소)를 확인함 -> 운영체제가 DNS 주소에 www.naver.com의 IP주소를 질의함 -> DNS 서버가 알려줌
+  cf) DNS 주소의 경우 주로 ISP(KT)에서 정해줌
+  cf) PC가 한번이라도 DNS에 질의 했을 때 해당 IP주소를 메모리에 저장해둠 -> DNS Cache -> cmd에서 해당 캐시보는법 ipconfig /displaydns 
+                                    ㄴ 캐쉬의 유효기간도 존재
+   cf) DNS forewarding -> 공유기가 DNS 역할을 할때도 있음
+   cf) Window의 hosts파일 -> DNS에 묻지않고 해당 파일에 있는대로 행동함 -> DNS Cache의 메모리가 위치한 파일
+   cf) DNS 서버 자체도 캐쉬메모리라 일정시간이 지나면 삭제됨
+        -> 삭제된 Domain주소를 요청하면 트리구조인 DNS의 루트인 RootDNS에 물어봄->.com / .net 등등 담당 DNS IP "목록"을 알려줌 
+-> KT DNS 서버가 목록 IP 중 하나에 다시 물어봄
+  
+
+웹 기술의 창시자와 대한민국 인터넷
+  팀 버너슬 리 -> 입자물리연구소에서 근무(HTML, HTTP의 창시자)
+  HTML : 문서(논문의 참고문헌의 참고문헌의 참고문헌 -> 연결되는 느낌)
+  HTTP : HTML 문서를 싣기하기 위해 설계됨
+
+  전길남 -> 국내 첫 인터넷 연결(세계 두번째 ㄷㄷ)
+	-> 미국이 라우터 안팔아서 만드심...ㄷㄷ
+	  -> 제자들은(리니지 넥슨) 게임 만듬 ㅋㅋㅋ
+
+
+URL(Uniform Resource Locator) 과 URI(Uniform Resource Identifier)
+    URL⊂URI 관계임
+  Resource란? : web(HTML+HTTP)에 한정지어서 HTML file임
+  URL : HTML File의 위치
+  
+  URI 구조
+     URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
+       Protocol: Address:Portnumber/Path(or filename)?Parameter=value          http://www.test.co.kr/course.do?cmd=search&serach_keyword=Test
+                  Host구별    / 파일경로
