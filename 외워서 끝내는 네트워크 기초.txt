@@ -691,3 +691,135 @@ URL(Uniform Resource Locator) 과 URI(Uniform Resource Identifier)
      URI = scheme ":" ["//" authority] path ["?" query] ["#" fragment]
        Protocol: Address:Portnumber/Path(or filename)?Parameter=value          http://www.test.co.kr/course.do?cmd=search&serach_keyword=Test
                   Host구별    / 파일경로
+
+
+HTTP : HTML문서를 전송 받기 위해 만들어진 응용 프로그램 계층( L7) 통신 프로토콜 ( ->모두 문자열로 이루어짐)
+  -> 기본적으로 클라이언트의 요청에 대응하는 응답형식으로 작동한다.
+  -> L5이상 통신은 소켓통신-> 소케통신의 데이터는 Stream data
+  -> Stream의 시작과 끝은 HTTP에 있음
+   헤더 분류
+      일반헤더
+      요청헤더 -> HTML Request ->요청에 사용되는 메소드 GET,POST
+      응답헤더 -> 요청한 HTML을 Response해줌
+      엔티티헤더 
+
+HTTP 메소드
+  GET -> Res를 다운로드 느낌
+  POST -> Res를  Upload 느낌 (Id/password로그인),(파일 업로드)
+  HEAD -> 
+  TRACE
+  PUT -> Res를 새롭게 업로드
+  DELETE -> Res 삭제
+  OPTIONS
+  CONNECT
+HTTP 응답 코드
+  200 : OK
+  201 : CREATE(요청에 대한 새로운 자원을 생성하는데 성공)
+  301 : Moved permanently
+  302 : Found
+  400 : Bad Request(HTTP 규약에 맞지 않는 요청)
+  403 : Forbidden (권한이 없거나 잘못된 파일 실행 접근시도)
+  404 : Not found (Client가 Res 요청했지만 서버에서 해당 Res이 없음)
+	ex) .jpg파일을 요청했지만 없어서 x 표시됨
+  500 :  Internal server error( 내부 오류때문에 요청을 처리할 수 없음)
+	ex) 서버의 백엔드단에서 심각한 내부오류가 발생함
+
+웹 서비스 기본 구조
+ 
+ Web Client			Web Server
+       |       --- TCP/IP 및 HTTP 세션 생성 --->
+       |	 --- HTML 문서 전송요청(GET)  --->
+       |	 <---서버에서 HTML문서를 수신하고 연결종료---
+
+HTTP Traffic
+  소켓 수준에서 만들어지며 끝을 모르는 Stream을 다룸
+  Stream을 Segement,Packet으로 분할하고 IP Stack에서 전송함
+
+SW 개발시 설계원칙-> 유지,보수 쉽게 하기 위해
+  GUI, DATA,제어의 구조를 분리시켜야한다
+
+WAS : Web Application Server
+
+	WEB             
+       HTML,HTTP(상태 개념이 없음 Statless)
+				     ┌ 송수신 담당
+   ┌Browser(문서뷰어)                          ┌ Resource(HTML,CSS,JS)
+PC(Client)---Internet--IPS-SSL- WAF- Web Server---WAS--- DB(자료담당)
+      | HTTPS 통신	          | HTTP통신	      |
+1     | TCP/IP 연결, HTTP 통신                   |       ㄴ처리담당      
+2     | http.request.method==GET 요청-->   |       |
+3     | <--HTML(DATA), CSS(UI), JS, JPG 보냄 |       |
+       |				        |       |
+4     | http.request.method==POST ---->     |       |   ODBC,JDBC
+       | ex)로그인  id='tester'&pwd="1234"                ㄴ서버끼리연결한 
+					           인터페이스
+       |                                                    |       | 검증요청(SQL)
+5     |<---동적 HTML 문서를 보냄                | <--  |  결과송신   
+
+6    					    | APM      		
+       |1-tier                                              |1tier  |1tier   -->3-tier
+1. 브라우저에서 Domain입력함 ->DNS에게 IP주소를 물어봄
+  ->얻은 IP주소로 접속후 TCP 통신 연결 -> HTTP통신 연결
+2. HTTP의 GET 메소드를 서버에 요청함
+3. Web 서버에서 받은 HTML문서를 브라우저(문서뷰어)에 표시(렌더링)함
+    -> 설계 원칙에 따라 UI와 DATA를 분리하기 위해 CSS를 분리함
+    -> 정적인 HTML 문서를 동적인 제어와 움직임을 위해 JS 탄생함
+    -> CSS,JS로 인해 렌더링 하기전에 구문분석을 해야함(text+tag 분리)
+    -> 구문분석 후 tag에 맞게 렌더링 -> Js 엔진 적용 -> JS는 Client 단계에서 이루어짐 -> 보안적으로는 크게 도움이 안되면 보안은 서버에서 해야함
+    -> Client가 서버에 요청하는 GET은 단방향 통신이라 상호작용이 좋지는않음
+
+4. 서버와 양방향 상호작용하기 위한 POST
+     양방향 상호작용을 위해서는 상태전이가 필요해지는데 HTML은 상태가 없음 -> 상태를 기억하기 위해 Client에 Cookie를 구현, Server는 기억할게 많음으로 DB에 저장함 
+     ex) id='tester'&pwd="1234"  -> 서버 관점에서 원격지 사용자의 입력
+				ㄴ>신뢰할수 없고 검증 대상임
+     -> 검증시 원격자 사용자 입력값에 SQL 조사함
+     -> WEB server가 직접 DB에 접근하지 않고 연산처리 서버에 접근함
+     -> 연산서버에는 값이 비어있는 동적인 문서가 있고 로그인 요청정보를 바탕으로 새로운 문서를 생성함 ex) tester님 안녕하세요
+                    ㄴ ex) JSP (java server page)
+     -> DB에서 id,pwd 비교하여 검증함 
+     -> Cookie는 Key=value형태로 이루어짐
+
+  cf) Req이 Read,Write,Update,Delete(CRUD)라면?
+      Req은 이 상황에서 함수 호출자 -> CRUD에 구현된 함수를 호출함
+      Web의 CRUD에 구현된 함수를 RestFul API라고함
+      						
+ 
+5. 브라우저의 화면이 검증 결과에 따라 동적인 HTML문서를 바탕으로 바뀜
+ 하지만 Iphone,android,PC등 Client가 다양해져 이에 맞는 Template이 필요함 ->일일이 Ui를 만들기 보다는 UI와 DATA가 동시에 날라오는 상황에서 이를 분리하고 DATA만 보냄(XML,JSON 형태) -> JS가 받은 data로 Client Ui에 맞게 HTML을 생성함 (JS framework 예시) Rreact.js, view.js
+ 
+  cf) View : HTML, 검증결과 틀(Template) ->ex) JSP (java server page)
+      Model :  DB, 검증결과를 결합한 최종적인 View
+      Control : 네트워크상 Request에 따른 제어체계
+
+6. 네트워크 속도가 빨라도 DB가 응답하지않으면 의미가 없다
+    SQL 질의에 대한 응답시간이 중요함-> 서비스 품질 평가에 큰역할
+       -> APM이라는 스카우터가 이를 평가해줌
+       -> APM이 JVM도 평가함
+	JSP,PHP,ASP 
+          -------------------------------------------------------------
+	Framework
+ 	----------------------------------------------------
+	Middleware (Java byte code를 기반으로 App을 작동함)
+                               ㄴ 다른 S/W가 잘 작동하기 위한 S/W
+              ex) TCP/IP,DB,File  -> Java기반 말고도 이런 기능은 필요함
+                                      -> 개발 단계에서 해당 부분을 안해도됨
+         ------------------------------------------------------------
+          Java byte code ( JVM이 인식할 수 있는 명령체계)
+                -----------------------------
+         user  CPU (Java 기반의 S/W CPU) -> Java Virtual Machine
+          ----------------------------
+         kernel  
+         S/W -> logical = Virtual
+           --------------
+         H/W CPU Machine
+
+	JVM : Java를 위해 소프트웨어로 구현된 CPU
+            Middleware==WAS ex) Tomcat
+	Framework ~ JVM까지 Container이라고 함
+
+보안 
+ IPS(1차보안), SSL(가속기) , WAF(Web Application Firewall)(2차보안)
+        WAF 위치가 Web과 WAS사이에 옮길 수 도있음
+ SSL : 암호화
+         HTTPS 통신 -- SSL -- HTTP 통신
+	SSL을 통과하면 HTTP 통신
